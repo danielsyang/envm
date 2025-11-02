@@ -21,8 +21,8 @@ func InitDatabase() {
 	_, err = db.ExecContext(
 		context.Background(),
 		`CREATE TABLE IF NOT EXISTS environments (
-			id INTEGER PRIMARY KEY AUTOINCREMENT, 
-			name TEXT NOT NULL, 
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT NOT NULL UNIQUE,
 			content TEXT NOT NULL,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		);`,
@@ -33,6 +33,14 @@ func InitDatabase() {
 
 }
 
-func ListEnvironments() []string {
-	return []string{"local", "dev", "stage", "prod"}
+func GetConnection() *sql.DB {
+	if db == nil {
+		log.Fatal("database not initialized")
+	}
+
+	if err := db.PingContext(context.Background()); err != nil {
+		log.Fatal("database connection lost: %w", err)
+	}
+
+	return db
 }
